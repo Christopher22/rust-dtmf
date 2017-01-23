@@ -1,0 +1,8 @@
+[package]
+name = "dtmf"
+version = "0.1.0"
+authors = ["Christopher Gundler <c.gundler@mail.de>"]
+
+[[bin]]
+name = "main"
+doc = false
