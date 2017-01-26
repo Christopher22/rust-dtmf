@@ -6,3 +6,6 @@ authors = ["Christopher Gundler <c.gundler@mail.de>"]
 [[bin]]
 name = "main"
 doc = false
+
+[dependencies]
+sample = "0.6"
