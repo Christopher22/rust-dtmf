@@ -1,5 +1,3 @@
 extern crate dtmf;
 
-fn main() {
-
-}
+fn main() {}

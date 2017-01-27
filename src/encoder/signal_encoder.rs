@@ -8,7 +8,6 @@ use ::Signal as DtmfSignal;
 pub struct SignalEncoder(AddAmp<Sine<ConstHz>, Sine<ConstHz>>);
 
 impl SignalEncoder {
-
     /// Creates a new encoder given an specific DTMF signal and a sample rate.
     /// # Example
     /// ```
