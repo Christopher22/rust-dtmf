@@ -121,7 +121,9 @@ impl Display for Signal {
                    Signal::B => 'B',
                    Signal::C => 'C',
                    Signal::D => 'D',
-                   Signal::Digit(number) => char::from(number),
+                   Signal::Digit(number) => {
+                       ::std::char::from_digit(number as u32, 10).expect("Valid digit")
+                   }
                })
     }
 }
