@@ -1,5 +1,4 @@
 use std::collections::vec_deque::Iter;
-use std::time::Duration;
 use std::collections::VecDeque;
 use std::str::FromStr;
 use std::fmt::{Display, Formatter, Result as FormatResult};
@@ -13,8 +12,8 @@ pub type SignalIterator<'a> = Iter<'a, Signal>;
 /// A `Message` guaranties correctness of its signals.
 pub struct Message {
     signals: VecDeque<Signal>,
-    signal_duration: Duration,
-    silence_duration: Duration,
+    signal_duration: f64,
+    silence_duration: f64,
 }
 
 impl Message {
@@ -38,13 +37,13 @@ impl Message {
         }
     }
 
-    /// The duration of each signal.
-    pub fn signal_duration(&self) -> Duration {
+    /// The duration of each signal in seconds.
+    pub fn signal_duration(&self) -> f64 {
         self.signal_duration
     }
 
-    /// The duration of the silence between the signals.
-    pub fn silence_duration(&self) -> Duration {
+    /// The duration of the silence between the signals in seconds.
+    pub fn silence_duration(&self) -> f64 {
         self.silence_duration
     }
 
@@ -93,8 +92,8 @@ impl Default for Message {
     fn default() -> Message {
         Message {
             signals: VecDeque::new(),
-            signal_duration: Duration::from_millis(700),
-            silence_duration: Duration::from_millis(300),
+            signal_duration: 0.7,
+            silence_duration: 0.3,
         }
     }
 }

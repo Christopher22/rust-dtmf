@@ -1,31 +1,38 @@
 use ::sample::Signal;
 use ::sample::signal::Delay;
 
+use std::iter::Take;
+
 use ::Message;
 use super::SignalEncoder;
 
 /// An encoder which encodes a DTMF message.
 #[derive(Clone)]
 pub struct MessageEncoder {
-    signals: Vec<Delay<SignalEncoder>>,
+    signals: Vec<Delay<Take<SignalEncoder>>>,
     current_index: usize,
 }
 
 impl MessageEncoder {
     /// Creates a new encoder given a message and a sample rate
     pub fn new(message: &Message, sample_rate: f64) -> MessageEncoder {
-        let signal_length = message.signal_duration().as_secs() as f64 * sample_rate;
-        let silence_length = message.silence_duration().as_secs() as usize * sample_rate as usize;
+        let signal_length = (message.signal_duration() * sample_rate) as usize;
+        let silence_length = (message.silence_duration() * sample_rate) as usize;
 
         let mut signals = Vec::new();
         let mut signal_iterator = message.iter();
 
         // Add the first signal without delay, the others with it.
         if let Some(signal) = signal_iterator.next() {
-            signals.push(SignalEncoder::new(*signal, signal_length).expect("Valid signal").delay(0));
+            signals.push(SignalEncoder::new(*signal, sample_rate)
+                .expect("Valid signal")
+                .take(signal_length)
+                .delay(0));
+
             for signal in signal_iterator {
-                signals.push(SignalEncoder::new(*signal, signal_length)
+                signals.push(SignalEncoder::new(*signal, sample_rate)
                     .expect("Valid signal")
+                    .take(signal_length)
                     .delay(silence_length));
             }
         }
