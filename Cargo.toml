@@ -9,3 +9,4 @@ doc = false
 
 [dependencies]
 sample = "0.6"
+hound = "3.0"
