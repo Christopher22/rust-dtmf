@@ -10,4 +10,4 @@ doc = false
 [dependencies]
 sample = "0.6"
 hound = "3.0"
-goertzel-filter = "2.0"
+goertzel-filter = "0.2.0"

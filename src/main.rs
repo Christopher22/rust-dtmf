@@ -29,6 +29,29 @@ fn encode(message: Message) -> bool {
     }
 }
 
+/*fn decode(silence_length: f64, signal_duration:f64) -> Option<Message> {
+    use dtmf::encoder::MessageEncoder;
+    use hound::{WavReader, WavSpec};
+    use dtmf::decoder::MessageMaker;
+
+    if let Ok(mut reader) = WavReader::open("dtmf.wav"){
+    let samples = reader.samples::<i32>();
+    let sample_rate = reader.spec().sample_rate;
+
+    let m_encoder = MessageEncoder{
+        signals: samples.collect::<Vec<i32>>(),
+        current_index: 0,
+        silence_length: silence_length,
+        signal_duration: signal_duration,
+        sample_rate: sample_rate,
+    };
+
+    MessageMaker::new(m_encoder).message
+    }
+    None
+}
+*/
+
 fn main() {
     // Get arguments
     let args: Vec<_> = ::std::env::args().skip(1).collect();
@@ -50,4 +73,11 @@ fn main() {
         }
         _ => println!("[ERROR] Please specify an argument."),
     }
+
+    /*if let Some(x) = decode(0.3, 0.7) {
+          println!("{}",x);
+    } else {
+        println!("Decoding failed");
+    }*/
+  
 }
