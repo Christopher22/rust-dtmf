@@ -11,6 +11,8 @@ use super::SignalEncoder;
 pub struct MessageEncoder {
     signals: Vec<Delay<Take<SignalEncoder>>>,
     current_index: usize,
+    pub silence_length: usize,
+    pub signal_duration: usize,
 }
 
 impl MessageEncoder {
@@ -40,6 +42,8 @@ impl MessageEncoder {
         MessageEncoder {
             signals: signals,
             current_index: 0,
+            silence_length: silence_length,
+            signal_duration: silence_length,
         }
     }
 }

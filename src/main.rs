@@ -2,6 +2,7 @@ extern crate dtmf;
 extern crate hound;
 extern crate sample;
 
+
 use dtmf::Message;
 
 fn encode(message: Message) -> bool {
@@ -52,6 +53,15 @@ fn encode(message: Message) -> bool {
 }
 */
 
+fn test_method(message: Message) -> Message{
+    use decoder::message_maker::MessageMaker;
+    use dtmf::encoder::MessageEncoder;
+
+    MessageMaker::new(MessageEncoder::new(&message, 44_100.0)).message()
+}
+
+
+
 fn main() {
     // Get arguments
     let args: Vec<_> = ::std::env::args().skip(1).collect();
@@ -74,10 +84,27 @@ fn main() {
         _ => println!("[ERROR] Please specify an argument."),
     }
 
-    /*if let Some(x) = decode(0.3, 0.7) {
-          println!("{}",x);
-    } else {
-        println!("Decoding failed");
+    match args.len() {
+        0 => unimplemented!(),
+        1 => {
+            match args.first().unwrap().parse() {
+                Ok(message) => {
+                    println!("Message: {}", message);
+                    println!("Decoded Message: {}", test_method(message));
+                },
+                Err(_) => {
+                    println!("[ERROR] Invalid message");
+                    return;
+                }
+            }
+        }
+        _ => println!("[ERROR] Please specify an argument."),
+    }
+
+
+    /*match MessageMaker::new() {
+        Ok(x) => println!("Decoded message: {}", x),
+        Err() => println!("Decoding failed"),
     }*/
   
 }
