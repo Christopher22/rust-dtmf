@@ -14,6 +14,11 @@ impl Goertzel_DTMF {
         let &lower_f = [697.,770., 852., 941.].iter()
                                         .max_by_key(|x| dft_power(samples, **x).round() as i64)
                                         .unwrap();
+        println!("Goertzel 697: {}", dft_power(samples, 697.));
+        println!("Goertzel 941: {}", dft_power(samples, 941.));
+
+        println!("Goertzel 1209: {}", dft_power(samples, 1209.));
+        println!("Goertzel 1633: {}", dft_power(samples, 1633.));
         
         let &higher_f = [1209., 1336., 1477., 1633.].into_iter()
                                         .max_by_key(|x| dft_power(samples, **x).round() as i64)
@@ -23,8 +28,8 @@ impl Goertzel_DTMF {
             Err("Problem with Goertzel")
         } else {
             Ok(Goertzel_DTMF{
-                higher_f: higher_f,
-                lower_f: lower_f,
+                higher_f: higher_f.sqrt(),
+                lower_f: lower_f.sqrt(),
                 signal: find_signal(lower_f, higher_f).unwrap(),
             }) 
         } 
@@ -32,6 +37,7 @@ impl Goertzel_DTMF {
 }
 
  fn find_signal(lower_f: f64, higher_f: f64) -> Option<Signal> {
+        println!("Frequenzen: {}, {}", lower_f, higher_f);
         match (lower_f, higher_f) {
             (941., 1336.) => Some(Signal::Digit(0)),
             (697., 1209.) => Some(Signal::Digit(1)),
