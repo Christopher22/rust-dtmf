@@ -6,26 +6,28 @@ use ::dtmf::signal::Signal;
 pub struct Goertzel_DTMF {
     higher_f: f64,
     lower_f: f64,
-    signal: Signal,
+    pub signal: Signal,
 }
 
 impl Goertzel_DTMF {
-    pub fn new(samples: &Vec<f64>) -> Goertzel_DTMF {
-        let lower_f = [697.,770., 852., 941.].iter()
-                                        .max_by_key(|x| dft_power(samples, **x))
+    pub fn new(samples: &Vec<f64>) -> Result<Goertzel_DTMF, &'static str> {
+        let &lower_f = [697.,770., 852., 941.].iter()
+                                        .max_by_key(|x| dft_power(samples, **x).round() as i64)
                                         .unwrap();
         
-        let higher_f = [1209., 1336., 1477., 1633.].iter()
-                                        .max_by_key(|x| dft_power(samples, **x))
+        let &higher_f = [1209., 1336., 1477., 1633.].into_iter()
+                                        .max_by_key(|x| dft_power(samples, **x).round() as i64)
                                         .unwrap();
 
-        if !find_signal(lower_f, higher_f).is_some {println!("Problem with Goertzel");}
-
-        Goertzel_DTMF{
-            higher_f: higher_f,
-            lower_f: lower_f,
-            signal: find_signal(lower_f, higher_f),
-        }  
+        if !find_signal(lower_f, higher_f).is_some() {
+            Err("Problem with Goertzel")
+        } else {
+            Ok(Goertzel_DTMF{
+                higher_f: higher_f,
+                lower_f: lower_f,
+                signal: find_signal(lower_f, higher_f).unwrap(),
+            }) 
+        } 
     }
 }
 

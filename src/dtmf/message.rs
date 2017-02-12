@@ -11,9 +11,9 @@ pub type SignalIterator<'a> = Iter<'a, Signal>;
 /// # Hint
 /// A `Message` guaranties correctness of its signals.
 pub struct Message {
-    signals: VecDeque<Signal>,
-    signal_duration: f64,
-    silence_duration: f64,
+    pub signals: VecDeque<Signal>,
+    pub signal_duration: f64,
+    pub silence_duration: f64,
 }
 
 impl Message {

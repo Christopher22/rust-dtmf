@@ -53,11 +53,14 @@ fn encode(message: Message) -> bool {
 }
 */
 
-fn test_method(message: Message) -> Message{
-    use decoder::message_maker::MessageMaker;
+fn test_method(message: Message) -> Result<Message, &'static str>{
+    use dtmf::decoder::message_maker::MessageMaker;
     use dtmf::encoder::MessageEncoder;
 
-    MessageMaker::new(MessageEncoder::new(&message, 44_100.0)).message()
+    match MessageMaker::new(MessageEncoder::new(&message, 44_100.0)) {
+        Ok(x) => Ok(x.message),
+        Err(e)=> Err(e),
+    }
 }
 
 
@@ -90,7 +93,10 @@ fn main() {
             match args.first().unwrap().parse() {
                 Ok(message) => {
                     println!("Message: {}", message);
-                    println!("Decoded Message: {}", test_method(message));
+                    match test_method(message){
+                        Ok(x) => {println!("Decoded Message: {}", x);},
+                        Err(e) => {println!("Error: {}", e);},
+                    }
                 },
                 Err(_) => {
                     println!("[ERROR] Invalid message");
