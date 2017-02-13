@@ -31,7 +31,7 @@ impl MessageMaker {
         //other signals
         let mut index = signal_duration;
         while (index + signal_duration + silence_duration) < length {
-            
+            println!("zweite runde");
             match Goertzel_DTMF::new((&(encoded_message.clone().skip(index+silence_duration)
                                                             .take(signal_duration).map(|x| x[0]).collect::<Vec<f64>>()))) {
                 Ok(x) => {

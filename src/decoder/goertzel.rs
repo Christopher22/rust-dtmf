@@ -12,16 +12,19 @@ pub struct Goertzel_DTMF {
 impl Goertzel_DTMF {
     pub fn new(samples: &Vec<f64>) -> Result<Goertzel_DTMF, &'static str> {
         let &lower_f = [697.,770., 852., 941.].iter()
-                                        .max_by_key(|x| dft_power(samples, **x).round() as i64)
+                                        .max_by_key(|x| (dft_power(samples, **x)*10000000000000.0).round() as i64)
                                         .unwrap();
         println!("Goertzel 697: {}", dft_power(samples, 697.));
-        println!("Goertzel 941: {}", dft_power(samples, 941.));
+        println!("Goertzel 770: {}", dft_power(samples, 770.));
 
         println!("Goertzel 1209: {}", dft_power(samples, 1209.));
-        println!("Goertzel 1633: {}", dft_power(samples, 1633.));
+        println!("Goertzel 1477: {}", dft_power(samples, 1477.));
+        println!("Goertzel 1209 - rounded: {}", dft_power(samples, 1209.).round() as i64);
+        println!("Goertzel 1633 - rounded: {}", dft_power(samples, 1633.).round() as i64);
+        println!("Goertzel 1336 - rounded: {}", dft_power(samples, 1336.).round() as i64);
         
         let &higher_f = [1209., 1336., 1477., 1633.].into_iter()
-                                        .max_by_key(|x| dft_power(samples, **x).round() as i64)
+                                        .max_by_key(|x| (dft_power(samples, **x)*10000000000000.0).round() as i64)
                                         .unwrap();
 
         if !find_signal(lower_f, higher_f).is_some() {
@@ -60,4 +63,41 @@ impl Goertzel_DTMF {
             // Invalid frequencies
             _ => None,
         }
+}
+
+fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64){
+    let len: i64 = samples.len() as i64;
+    let step: f64 = sample_rate / len;
+    let step_normalized = 1.0 / len;
+
+    //lower frequencies
+    let bins = Vec::new();
+    for i in [697,770, 852, 941].iter() {
+        let freq = i / step;
+        if freq > len-1 {println!("Frequency out of range {}", i);}
+        bins.append(freq);
     }
+    let n_range: Vec<i32> = (0..len).collect();
+    let mut freqs = Vec::new();
+    let mut results = Vec::new();
+    for k in bins {
+        //bin frequency and coefficients for computation
+        let f = k*step_normalized;
+        let real = 2.0 * (2.0 * std::f64::consts::PI * f).cos();
+        let imag = (2.0 * std::f64::consts::PI * f).sin();
+
+        let mut coeff1 = 0.0;
+        let mut coeff2 = 0.0;
+        //doing calculation on all samples
+        for n in n_range {
+            let y = samples[n] + real*coeff1 - coeff2;
+            coeff2 = coeff1;
+            coeff1 = y;
+        }
+        //storing results
+        results.push(coeff2.powi(2) + coeff1.powi(2) - real * coeff1 * coeff2);
+        freqs.push(f*sample_rate);
+    }
+    println!("Freq: {}", freqs);
+    println!("Results: {}", results);
+}

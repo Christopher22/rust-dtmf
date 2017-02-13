@@ -43,7 +43,7 @@ impl MessageEncoder {
             signals: signals,
             current_index: 0,
             silence_length: silence_length,
-            signal_duration: silence_length,
+            signal_duration: signal_length,
         }
     }
 }
