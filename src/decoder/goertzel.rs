@@ -5,57 +5,25 @@ use ::dtmf::signal::Signal;
 use std;
 
 pub struct Goertzel_DTMF {
-    higher_f: i32,
-    lower_f: i32,
     pub signal: Signal,
 }
 
 impl Goertzel_DTMF {
-    /*
-    pub fn new(samples: &Vec<f64>) -> Result<Goertzel_DTMF, &'static str> {
-        let &lower_f = [697.,770., 852., 941.].iter()
-                                        .max_by_key(|x| (dft_power(samples, **x)*10000000000000.0).round() as i64)
-                                        .unwrap();
-        println!("Goertzel 697: {}", dft_power(samples, 697.));
-        println!("Goertzel 770: {}", dft_power(samples, 770.));
-
-        println!("Goertzel 1209: {}", dft_power(samples, 1209.));
-        println!("Goertzel 1477: {}", dft_power(samples, 1477.));
-        println!("Goertzel 1209 - rounded: {}", dft_power(samples, 1209.).round() as i64);
-        println!("Goertzel 1633 - rounded: {}", dft_power(samples, 1633.).round() as i64);
-        println!("Goertzel 1336 - rounded: {}", dft_power(samples, 1336.).round() as i64);
-        
-        let &higher_f = [1209., 1336., 1477., 1633.].into_iter()
-                                        .max_by_key(|x| (dft_power(samples, **x)*10000000000000.0).round() as i64)
-                                        .unwrap();
-
-        if !find_signal(lower_f, higher_f).is_some() {
-            Err("Problem with Goertzel")
-        } else {
-            Ok(Goertzel_DTMF{
-                higher_f: higher_f.sqrt(),
-                lower_f: lower_f.sqrt(),
-                signal: find_signal(lower_f, higher_f).unwrap(),
-            }) 
-        } 
-    }*/
-
+    ///creates Goertzel_DTMF which holds the signal which fits the samples
+    ///needs samples and sample_rate
     pub fn new(samples: &Vec<f64>, sample_rate: f64) -> Result<Goertzel_DTMF, &'static str> {
-        let lower_f= goertzel_filter(samples, sample_rate, &[697, 770, 852, 941]);
-        let higher_f = goertzel_filter(samples, sample_rate, &[1209, 1336, 1477, 1633]);
-        let signal = match find_signal(lower_f, higher_f) {
+        let signal = match find_signal(goertzel_filter(samples, sample_rate, &[697, 770, 852, 941]),
+                                      goertzel_filter(samples, sample_rate, &[1209, 1336, 1477, 1633])) {
             Some(x) => x,
             None => return Err("Problem with Signal matching"),
         };
 
         Ok(Goertzel_DTMF {
-            lower_f: lower_f,
-            higher_f: higher_f,
             signal: signal,
         })
     }
 }
-
+///matcht 2 frequencies on the fitting signal
  fn find_signal(lower_f: i32, higher_f: i32) -> Option<Signal> {
         println!("Frequenzen: {}, {}", lower_f, higher_f);
         match (lower_f, higher_f) {
@@ -81,8 +49,9 @@ impl Goertzel_DTMF {
             _ => None,
         }
 }
-
-pub fn goertzel_filter<'a, 'b>(samples: &'b Vec<f64>, sample_rate: f64, dtmf_freq: &'a[i32]) -> i32{
+///examines frequency which has most power in samples
+///needs samples, sample_rate and the frequencies which are to be tested
+pub fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64, dtmf_freq: &[i32]) -> i32{
     let len: i64 = samples.len() as i64;
     let step: f64 = sample_rate / (len as f64);
     let step_normalized = 1.0 / (len as f64);

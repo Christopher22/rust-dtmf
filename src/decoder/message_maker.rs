@@ -12,6 +12,9 @@ pub struct MessageMaker {
 }
 
 impl MessageMaker {
+    ///creates new MessageMaker
+    ///need Iterator about samples, length of silence and signal, sample_rate
+    ///gives back MessageMaker which holds a Message object with decoded Message
     pub fn new(encoded_message: MessageEncoder, sample_rate: f64) -> Result<MessageMaker, &'static str> {
         let mut signals = VecDeque::new();
         let length = encoded_message.clone().count();

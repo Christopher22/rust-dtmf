@@ -54,7 +54,7 @@ fn encode(message: Message) -> bool {
     None
 }
 */
-
+///test without audio-file, just with messageEncoder object
 fn test_method(message: Message) -> Result<Message, &'static str>{
     use dtmf::decoder::message_maker::MessageMaker;
     use dtmf::encoder::MessageEncoder;
@@ -116,44 +116,4 @@ fn main() {
     }*/
   
 }
-/*
-fn test() {
-    use ::sample::Signal;
-use ::sample::signal::{rate, Sine, AddAmp, ConstHz, ScaleAmp};
-    use std::str::FromStr;
-    use dtmf::encoder::MessageEncoder;
-    use dtmf::decoder::goertzel::goertzel_filter;
-    println!("TEST");
-    println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 697.));
-    println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 770.));
-    println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 852.));
-    println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 941.));
-    println!("HIGHER");
-    println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 1209.));
-    println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 1336.));
-    println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 1477.));
-    println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 1633.));
-    
-    let mut signal = rate(44100.0).const_hz(697.).sine();
-    let mut signal2 = rate(44100.0).const_hz(1633.).sine();
-    
-    println!("TEST2");
-    println!("{:?}",
-             goertzel_filter(
-                 &MessageEncoder::new(&Message::from_str("A").unwrap(),44100.0)
-                 .map(|x| x[0]).collect::<Vec<f64>>(), 44100.0));
 
-
-
-    println!("{}",dft_power(&(signal.add_amp(signal2)).map(|x| x[0]).collect::<Vec<f64>>(), 697.));
-    let mut signal = rate(44100.0).const_hz(697.).sine();
-    let mut signal2 = rate(44100.0).const_hz(1633.).sine();
-    println!("{}",dft_power(&signal.add_amp(signal2).map(|x| x[0]).collect::<Vec<f64>>(), 770.));
-    let mut signal = rate(44100.0).const_hz(697.).sine();
-    let mut signal2 = rate(44100.0).const_hz(1633.).sine();
-    println!("{}",dft_power(&signal.add_amp(signal2).map(|x| x[0]).collect::<Vec<f64>>(), 852.));
-    let mut signal = rate(44100.0).const_hz(697.).sine();
-    let mut signal2 = rate(44100.0).const_hz(1633.).sine();
-    println!("{}",dft_power(&signal.add_amp(signal2).map(|x| x[0]).collect::<Vec<f64>>(), 941.));
-   
-}*/
