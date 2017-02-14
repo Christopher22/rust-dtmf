@@ -12,7 +12,7 @@ pub struct MessageMaker {
 }
 
 impl MessageMaker {
-    pub fn new(encoded_message: MessageEncoder) -> Result<MessageMaker, &'static str> {
+    pub fn new(encoded_message: MessageEncoder, sample_rate: f64) -> Result<MessageMaker, &'static str> {
         let mut signals = VecDeque::new();
         let length = encoded_message.clone().count();
         let signal_duration = encoded_message.clone().signal_duration;
@@ -20,7 +20,7 @@ impl MessageMaker {
         //split audio-message into audio-signals on pauses
         //first signal_duration
         if length >= signal_duration {
-            match Goertzel_DTMF::new((&(encoded_message.clone().take(signal_duration).map(|x| x[0]).collect::<Vec<f64>>()))) {
+            match Goertzel_DTMF::new((&(encoded_message.clone().take(signal_duration).map(|x| x[0]).collect::<Vec<f64>>())), sample_rate) {
                 Ok(x) => {
                     signals.push_back(x.signal);
                 }
@@ -30,10 +30,10 @@ impl MessageMaker {
 
         //other signals
         let mut index = signal_duration;
-        while (index + signal_duration + silence_duration) < length {
+        while (index + signal_duration + silence_duration) <= length {
             println!("zweite runde");
             match Goertzel_DTMF::new((&(encoded_message.clone().skip(index+silence_duration)
-                                                            .take(signal_duration).map(|x| x[0]).collect::<Vec<f64>>()))) {
+                                                            .take(signal_duration).map(|x| x[0]).collect::<Vec<f64>>())), sample_rate) {
                 Ok(x) => {
                     signals.push_back(x.signal);
                 }

@@ -59,7 +59,7 @@ fn test_method(message: Message) -> Result<Message, &'static str>{
     use dtmf::decoder::message_maker::MessageMaker;
     use dtmf::encoder::MessageEncoder;
 
-    match MessageMaker::new(MessageEncoder::new(&message, 44_100.0)) {
+    match MessageMaker::new(MessageEncoder::new(&message, 44_100.0), 44100.0) {
         Ok(x) => Ok(x.message),
         Err(e)=> Err(e),
     }
@@ -109,8 +109,6 @@ fn main() {
         _ => println!("[ERROR] Please specify an argument."),
     }
 
-    test();
-
 
     /*match MessageMaker::new() {
         Ok(x) => println!("Decoded message: {}", x),
@@ -118,14 +116,14 @@ fn main() {
     }*/
   
 }
-
+/*
 fn test() {
     use ::sample::Signal;
 use ::sample::signal::{rate, Sine, AddAmp, ConstHz, ScaleAmp};
     use std::str::FromStr;
     use dtmf::encoder::MessageEncoder;
     use dtmf::decoder::goertzel::goertzel_filter;
-    /*println!("TEST");
+    println!("TEST");
     println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 697.));
     println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 770.));
     println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 852.));
@@ -135,10 +133,10 @@ use ::sample::signal::{rate, Sine, AddAmp, ConstHz, ScaleAmp};
     println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 1336.));
     println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 1477.));
     println!("{}",dft_power(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 1633.));
-
+    
     let mut signal = rate(44100.0).const_hz(697.).sine();
     let mut signal2 = rate(44100.0).const_hz(1633.).sine();
-    */
+    
     println!("TEST2");
     println!("{:?}",
              goertzel_filter(
@@ -147,7 +145,7 @@ use ::sample::signal::{rate, Sine, AddAmp, ConstHz, ScaleAmp};
 
 
 
-    /*println!("{}",dft_power(&(signal.add_amp(signal2)).map(|x| x[0]).collect::<Vec<f64>>(), 697.));
+    println!("{}",dft_power(&(signal.add_amp(signal2)).map(|x| x[0]).collect::<Vec<f64>>(), 697.));
     let mut signal = rate(44100.0).const_hz(697.).sine();
     let mut signal2 = rate(44100.0).const_hz(1633.).sine();
     println!("{}",dft_power(&signal.add_amp(signal2).map(|x| x[0]).collect::<Vec<f64>>(), 770.));
@@ -157,5 +155,5 @@ use ::sample::signal::{rate, Sine, AddAmp, ConstHz, ScaleAmp};
     let mut signal = rate(44100.0).const_hz(697.).sine();
     let mut signal2 = rate(44100.0).const_hz(1633.).sine();
     println!("{}",dft_power(&signal.add_amp(signal2).map(|x| x[0]).collect::<Vec<f64>>(), 941.));
-   */
-}
+   
+}*/
