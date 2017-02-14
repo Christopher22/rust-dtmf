@@ -2,6 +2,7 @@
 extern crate goertzel_filter;
 use self::goertzel_filter::dft_power;
 use ::dtmf::signal::Signal;
+use std;
 
 pub struct Goertzel_DTMF {
     higher_f: f64,
@@ -65,32 +66,32 @@ impl Goertzel_DTMF {
         }
 }
 
-fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64){
+pub fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64){
     let len: i64 = samples.len() as i64;
-    let step: f64 = sample_rate / len;
-    let step_normalized = 1.0 / len;
+    let step: f64 = sample_rate / (len as f64);
+    let step_normalized = 1.0 / (len as f64);
 
     //lower frequencies
-    let bins = Vec::new();
+    let mut bins = Vec::new();
     for i in [697,770, 852, 941].iter() {
-        let freq = i / step;
-        if freq > len-1 {println!("Frequency out of range {}", i);}
-        bins.append(freq);
+        let mut freq = (*i as f64) / step;
+        if freq > (len as f64) -1f64 {println!("Frequency out of range {}", i);}
+        bins.push(freq.clone());
     }
-    let n_range: Vec<i32> = (0..len).collect();
+    let n_range: Vec<i64> = (0..len).collect();
     let mut freqs = Vec::new();
     let mut results = Vec::new();
     for k in bins {
         //bin frequency and coefficients for computation
-        let f = k*step_normalized;
+        let f = k * step_normalized;
         let real = 2.0 * (2.0 * std::f64::consts::PI * f).cos();
         let imag = (2.0 * std::f64::consts::PI * f).sin();
 
         let mut coeff1 = 0.0;
         let mut coeff2 = 0.0;
         //doing calculation on all samples
-        for n in n_range {
-            let y = samples[n] + real*coeff1 - coeff2;
+        for n in &n_range {
+            let y = samples[*n as usize] + real * coeff1 - coeff2;
             coeff2 = coeff1;
             coeff1 = y;
         }
@@ -98,6 +99,6 @@ fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64){
         results.push(coeff2.powi(2) + coeff1.powi(2) - real * coeff1 * coeff2);
         freqs.push(f*sample_rate);
     }
-    println!("Freq: {}", freqs);
-    println!("Results: {}", results);
+    println!("Freq: {:?}", freqs);
+    println!("Results: {:?}", results);
 }

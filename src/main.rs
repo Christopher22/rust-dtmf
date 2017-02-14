@@ -140,7 +140,10 @@ use ::sample::signal::{rate, Sine, AddAmp, ConstHz, ScaleAmp};
     let mut signal2 = rate(44100.0).const_hz(1633.).sine();
     */
     println!("TEST2");
-    println!("{}",goertzel_filter(&MessageEncoder::new(&Message::from_str("A").unwrap(), 44100.0).map(|x| x[0]).collect::<Vec<f64>>(), 44100.0));
+    println!("{:?}",
+             goertzel_filter(
+                 &MessageEncoder::new(&Message::from_str("A").unwrap(),44100.0)
+                 .map(|x| x[0]).collect::<Vec<f64>>(), 44100.0));
 
 
 
