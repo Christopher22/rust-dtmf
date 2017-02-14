@@ -1,5 +1,5 @@
+mod signal_decoder;
+mod message_decoder;
 
-pub mod goertzel;
-pub mod message_maker;
-
-pub use self::message_maker::MessageMaker;
+pub use self::signal_decoder::decode_signal;
+pub use self::message_decoder::decode_message;
