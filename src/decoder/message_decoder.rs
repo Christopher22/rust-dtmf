@@ -16,8 +16,8 @@ use super::decode_signal;
 ///
 /// let mut target_message = Message::default();
 ///
-/// let data = MessageEncoder::new(&message, 48.000);
-/// decode_message(&mut target_message, &data, 48.000);
+/// let data = MessageEncoder::new(&message, 48000.0);
+/// decode_message(&mut target_message, &data, 48000.0);
 ///
 /// assert_eq!(message, target_message);
 /// ```
@@ -48,6 +48,7 @@ pub fn decode_message(message: &mut Message,
     let mut index = signal_duration;
     while (index + signal_duration + silence_duration) <= length {
         match decode_signal((&(encoded_message.clone()
+                                .skip(index + silence_duration)
                                 .take(signal_duration)
                                 .map(|x| x[0])
                                 .collect::<Vec<f64>>())),
