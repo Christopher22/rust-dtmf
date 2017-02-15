@@ -9,7 +9,7 @@ use ::Signal;
 /// use ::dtmf::decoder::decode_signal;
 /// use ::dtmf::Signal;
 ///
-/// let data = SignalEncoder::new(Signal::A, 48.000).unwrap().map(|x| x[0]).collect::<Vec<f64>>();
+/// let data = SignalEncoder::new(Signal::A, 48.000).unwrap().take(12000).map(|x| x[0]).collect::<Vec<f64>>();
 /// assert_eq!(decode_signal(&data, 48.000), Some(Signal::A));
 /// ```
 pub fn decode_signal(samples: &Vec<f64>, sample_rate: f64) -> Option<Signal> {
