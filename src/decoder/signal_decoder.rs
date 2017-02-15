@@ -11,20 +11,18 @@ use ::Signal;
 ///
 /// for &signal in Signal::iter() {
 ///     let data = SignalEncoder::new(signal, 48000.).unwrap().take(12000).map(|x| x[0]).collect::<Vec<f64>>();
-///     assert_eq!(decode_signal(&data, 48000.), Some(signal));
+///     assert_eq!(decode_signal(&data, 48000.), signal);
 /// }
 /// ```
-pub fn decode_signal(samples: &Vec<f64>, sample_rate: f64) -> Option<Signal> {
-    let low_freq = goertzel_filter(samples, sample_rate, &[697, 770, 852, 941])
-        .expect("Valid frequencies");
-    let high_freq = goertzel_filter(samples, sample_rate, &[1209, 1336, 1477, 1633])
-        .expect("Valid frequencies");
+pub fn decode_signal(samples: &Vec<f64>, sample_rate: f64) -> Signal {
+    let low_freq = goertzel_filter(samples, sample_rate, &[697, 770, 852, 941]);
+    let high_freq = goertzel_filter(samples, sample_rate, &[1209, 1336, 1477, 1633]);
 
-    Signal::from_frequencies((low_freq as u16, high_freq as u16))
+    Signal::from_frequencies((low_freq, high_freq)).expect("Valid frequencies")
 }
 
 /// Examines frequency which has most power in samples
-pub fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64, dtmf_freq: &[i32]) -> Option<i32> {
+fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64, dtmf_freq: &[i32]) -> u16 {
     let len = samples.len() as i64;
     let step = sample_rate / (len as f64);
     let step_normalized = 1.0 / (len as f64);
@@ -33,9 +31,9 @@ pub fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64, dtmf_freq: &[i32]) 
     let mut bins = Vec::new();
     for i in dtmf_freq.iter() {
         let freq = (*i as f64) / step;
-        if freq > (len as f64) - 1f64 {
-            return None;
-        }
+        // if freq > (len as f64) - 1f64 {
+        //    return None;
+        // }
         bins.push(freq.clone());
     }
 
@@ -70,5 +68,5 @@ pub fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64, dtmf_freq: &[i32]) 
         }
     }
 
-    Some((freqs[index].round() as i32))
+    (freqs[index].round() as u16)
 }

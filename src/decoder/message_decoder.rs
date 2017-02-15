@@ -16,15 +16,12 @@ use super::decode_signal;
 ///
 /// let mut target_message = Message::default();
 ///
-/// let data = MessageEncoder::new(&message, 48.000);
-/// decode_message(&mut target_message, &data, 48.000);
+/// let data = MessageEncoder::new(&message, 48000.);
+/// decode_message(&mut target_message, &data, 48000.);
 ///
 /// assert_eq!(message, target_message);
 /// ```
-pub fn decode_message(message: &mut Message,
-                      encoded_message: &MessageEncoder,
-                      sample_rate: f64)
-                      -> bool {
+pub fn decode_message(message: &mut Message, encoded_message: &MessageEncoder, sample_rate: f64) {
 
     // let mut signals = VecDeque::new();
     let length = encoded_message.clone().count();
@@ -34,29 +31,25 @@ pub fn decode_message(message: &mut Message,
     // split audio-message into audio-signals on pauses
     // first signal_duration
     if length >= signal_duration {
-        match decode_signal((&(encoded_message.clone()
-                                .take(signal_duration)
-                                .map(|x| x[0])
-                                .collect::<Vec<f64>>())),
-                            sample_rate) {
-            Some(x) => message.enqueue(x),
-            None => return false,
-        };
+        let signal = decode_signal((&(encoded_message.clone()
+                                       .take(signal_duration)
+                                       .map(|x| x[0])
+                                       .collect::<Vec<f64>>())),
+                                   sample_rate);
+
+        message.enqueue(signal);
     }
 
     // other signals
     let mut index = signal_duration;
     while (index + signal_duration + silence_duration) <= length {
-        match decode_signal((&(encoded_message.clone()
-                                .take(signal_duration)
-                                .map(|x| x[0])
-                                .collect::<Vec<f64>>())),
-                            sample_rate) {
-            Some(x) => message.enqueue(x),
-            None => return false,
-        };
+        let signal = decode_signal((&(encoded_message.clone()
+                                       .take(signal_duration)
+                                       .map(|x| x[0])
+                                       .collect::<Vec<f64>>())),
+                                   sample_rate);
+
+        message.enqueue(signal);
         index += signal_duration + silence_duration;
     }
-
-    true
 }
