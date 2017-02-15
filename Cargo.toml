@@ -1,7 +1,18 @@
 [package]
 name = "dtmf"
 version = "0.1.0"
-authors = ["Christopher Gundler <c.gundler@mail.de>"]
+authors = ["Christopher Gundler <c.gundler@mail.de>", "Carmen Meixner", "Janis Pütz"]
+repository = "https://github.com/Christopher22/rust-dtmf.git"
+homepage = "https://github.com/Christopher22/rust-dtmf.git"
+license = "MIT"
+readme = "README.md"
+description = "An encoder and decoder for DTMF written in Rust"
+include = [
+    "**/*.rs",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE"
+]
 
 [[bin]]
 name = "main"
@@ -11,4 +22,3 @@ doc = false
 clap = "2.20"
 sample = "0.6"
 hound = "3.0"
-goertzel-filter = "0.2.0"
