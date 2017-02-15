@@ -9,8 +9,10 @@ use ::Signal;
 /// use ::dtmf::decoder::decode_signal;
 /// use ::dtmf::Signal;
 ///
-/// let data = SignalEncoder::new(Signal::A, 48.000).unwrap().take(12000).map(|x| x[0]).collect::<Vec<f64>>();
-/// assert_eq!(decode_signal(&data, 48.000), Some(Signal::A));
+/// for &signal in Signal::iter() {
+///     let data = SignalEncoder::new(signal, 48000.).unwrap().take(12000).map(|x| x[0]).collect::<Vec<f64>>();
+///     assert_eq!(decode_signal(&data, 48000.), Some(signal));
+/// }
 /// ```
 pub fn decode_signal(samples: &Vec<f64>, sample_rate: f64) -> Option<Signal> {
     let low_freq = goertzel_filter(samples, sample_rate, &[697, 770, 852, 941])
@@ -18,34 +20,7 @@ pub fn decode_signal(samples: &Vec<f64>, sample_rate: f64) -> Option<Signal> {
     let high_freq = goertzel_filter(samples, sample_rate, &[1209, 1336, 1477, 1633])
         .expect("Valid frequencies");
 
-    find_signal(low_freq, high_freq)
-}
-
-/// Translate frequencies into signal
-/// TODO: Include in signal
-fn find_signal(lower_f: i32, higher_f: i32) -> Option<Signal> {
-    match (lower_f, higher_f) {
-        (941, 1336) => Some(Signal::Digit(0)),
-        (697, 1209) => Some(Signal::Digit(1)),
-        (697, 1336) => Some(Signal::Digit(2)),
-        (697, 1477) => Some(Signal::Digit(3)),
-        (770, 1209) => Some(Signal::Digit(4)),
-        (770, 1336) => Some(Signal::Digit(5)),
-        (770, 1477) => Some(Signal::Digit(6)),
-        (852, 1209) => Some(Signal::Digit(7)),
-        (852, 1336) => Some(Signal::Digit(8)),
-        (852, 1477) => Some(Signal::Digit(9)),
-        // Valid letters
-        (697, 1633) => Some(Signal::A),
-        (770, 1633) => Some(Signal::B),
-        (852, 1633) => Some(Signal::C),
-        (941, 1633) => Some(Signal::D),
-        // Other symbols
-        (941, 1209) => Some(Signal::Asterisk),
-        (941, 1477) => Some(Signal::Hash),
-        // Invalid frequencies
-        _ => None,
-    }
+    Signal::from_frequencies((low_freq as u16, high_freq as u16))
 }
 
 /// Examines frequency which has most power in samples
