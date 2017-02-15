@@ -46,6 +46,40 @@ impl Signal {
         }
     }
 
+    /// Generates a signal from a lower and an upper frequency.
+    /// # Example
+    /// ```
+    /// use ::dtmf::Signal;
+    ///
+    /// for &signal in Signal::iter() {
+    ///     let frequencies = signal.frequencies().expect("Valid signals");
+    ///     assert_eq!(Some(signal), Signal::from_frequencies(frequencies));
+    /// }
+    /// ```
+    pub fn from_frequencies(frequencies: (u16, u16)) -> Option<Signal> {
+        match (frequencies.0, frequencies.1) {
+            (941, 1336) => Some(Signal::Digit(0)),
+            (697, 1209) => Some(Signal::Digit(1)),
+            (697, 1336) => Some(Signal::Digit(2)),
+            (697, 1477) => Some(Signal::Digit(3)),
+            (770, 1209) => Some(Signal::Digit(4)),
+            (770, 1336) => Some(Signal::Digit(5)),
+            (770, 1477) => Some(Signal::Digit(6)),
+            (852, 1209) => Some(Signal::Digit(7)),
+            (852, 1336) => Some(Signal::Digit(8)),
+            (852, 1477) => Some(Signal::Digit(9)),
+            // Valid letters
+            (697, 1633) => Some(Signal::A),
+            (770, 1633) => Some(Signal::B),
+            (852, 1633) => Some(Signal::C),
+            (941, 1633) => Some(Signal::D),
+            // Other symbols
+            (941, 1209) => Some(Signal::Asterisk),
+            (941, 1477) => Some(Signal::Hash),
+            _ => None
+        }
+    }
+
     /// Returns the lower and the upper frequency of the signal according to the standardization.
     /// # Example
     /// ```
