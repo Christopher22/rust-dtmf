@@ -3,6 +3,15 @@ use std;
 use ::Signal;
 
 /// Decodes a signal from a stream of samples.
+/// # Example
+/// ```
+/// use ::dtmf::encoder::SignalEncoder;
+/// use ::dtmf::decoder::decode_signal;
+/// use ::dtmf::Signal;
+///
+/// let data = SignalEncoder::new(Signal::A, 48.000).unwrap().map(|x| x[0]).collect::<Vec<f64>>();
+/// assert_eq!(decode_signal(&data, 48.000), Some(Signal::A));
+/// ```
 pub fn decode_signal(samples: &Vec<f64>, sample_rate: f64) -> Option<Signal> {
     let low_freq = goertzel_filter(samples, sample_rate, &[697, 770, 852, 941])
         .expect("Valid frequencies");
@@ -48,7 +57,7 @@ pub fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64, dtmf_freq: &[i32]) 
     // make bins
     let mut bins = Vec::new();
     for i in dtmf_freq.iter() {
-        let mut freq = (*i as f64) / step;
+        let freq = (*i as f64) / step;
         if freq > (len as f64) - 1f64 {
             return None;
         }
@@ -63,7 +72,6 @@ pub fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64, dtmf_freq: &[i32]) 
         // bin frequency and coefficients for computation
         let f = k * step_normalized;
         let real = 2.0 * (2.0 * std::f64::consts::PI * f).cos();
-        let imag = (2.0 * std::f64::consts::PI * f).sin();
 
         let mut coeff1 = 0.0;
         let mut coeff2 = 0.0;

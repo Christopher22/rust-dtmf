@@ -29,15 +29,4 @@ fn encode(message: Message) -> bool {
     }
 }
 
-// // test without audio-file, just with messageEncoder object
-// fn test_method(message: Message) -> Result<Message, &'static str> {
-// use dtmf::decoder::message_decoder::MessageMaker;
-// use dtmf::encoder::MessageEncoder;
-//
-// match MessageMaker::new(MessageEncoder::new(&message, 44_100.0), 44100.0) {
-// Ok(x) => Ok(x.message),
-// Err(e) => Err(e),
-// }
-// }
-
 fn main() {}

@@ -1,11 +1,26 @@
-use std::collections::VecDeque;
-
 use ::Message;
 use ::encoder::MessageEncoder;
 
 use super::decode_signal;
 
-/// Decodes a message
+/// Decodes a message.
+/// # Example
+/// ```
+/// use ::dtmf::{Message, Signal};
+/// use ::dtmf::encoder::MessageEncoder;
+/// use ::dtmf::decoder::decode_message;
+///
+/// let mut message = Message::default();
+/// message.enqueue(Signal::A);
+/// message.enqueue(Signal::B);
+///
+/// let mut target_message = Message::default();
+///
+/// let data = MessageEncoder::new(&message, 48.000);
+/// decode_message(&mut target_message, &data, 48.000);
+///
+/// assert_eq!(message, target_message);
+/// ```
 pub fn decode_message(message: &mut Message,
                       encoded_message: &MessageEncoder,
                       sample_rate: f64)
