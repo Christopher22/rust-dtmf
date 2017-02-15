@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use std::slice::Iter;
 use std::fmt::{Display, Formatter, Result as FormatResult};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -82,6 +83,28 @@ impl Signal {
             // Invalid digit
             _ => None,
         }
+    }
+
+    /// Returns an iterator over all valid signals.
+    pub fn iter() -> Iter<'static, Signal> {
+        static VALID_SIGNALS: [Signal; 16] = [Signal::Digit(0),
+                                              Signal::Digit(1),
+                                              Signal::Digit(2),
+                                              Signal::Digit(3),
+                                              Signal::Digit(4),
+                                              Signal::Digit(5),
+                                              Signal::Digit(6),
+                                              Signal::Digit(7),
+                                              Signal::Digit(8),
+                                              Signal::Digit(9),
+                                              Signal::A,
+                                              Signal::B,
+                                              Signal::C,
+                                              Signal::D,
+                                              Signal::Asterisk,
+                                              Signal::Hash];
+
+        VALID_SIGNALS.into_iter()
     }
 }
 
