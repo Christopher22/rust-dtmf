@@ -5,9 +5,9 @@ use super::decode_signal;
 /// Decodes a message.
 /// # Example
 /// ```
-/// use ::dtmf::{Message, Signal};
-/// use ::dtmf::encoder::MessageEncoder;
-/// use ::dtmf::decoder::decode_message;
+/// use dtmf::{Message, Signal};
+/// use dtmf::encoder::MessageEncoder;
+/// use dtmf::decoder::decode_message;
 ///
 /// let mut message = Message::default();
 /// message.enqueue(Signal::A);

@@ -6,9 +6,9 @@ use Signal;
 /// Decodes a signal from a stream of samples.
 /// # Example
 /// ```
-/// use ::dtmf::encoder::SignalEncoder;
-/// use ::dtmf::decoder::decode_signal;
-/// use ::dtmf::Signal;
+/// use dtmf::encoder::SignalEncoder;
+/// use dtmf::decoder::decode_signal;
+/// use dtmf::Signal;
 ///
 /// for &signal in Signal::iter() {
 ///     let data = SignalEncoder::new(signal, 48000.).unwrap().take(12000).map(|x| x[0]).collect::<Vec<f64>>();

@@ -1,7 +1,7 @@
-use ::sample::Signal;
-use ::sample::signal::{rate, Sine, AddAmp, ConstHz, ScaleAmp};
+use sample::Signal;
+use sample::signal::{rate, Sine, AddAmp, ConstHz, ScaleAmp};
 
-use ::Signal as DtmfSignal;
+use Signal as DtmfSignal;
 
 /// An encoder which encodes a specific DTMF signal.
 #[derive(Clone)]
@@ -11,8 +11,8 @@ impl SignalEncoder {
     /// Creates a new encoder given an specific DTMF signal and a sample rate.
     /// # Example
     /// ```
-    /// use ::dtmf::encoder::SignalEncoder;
-    /// use ::dtmf::Signal;
+    /// use dtmf::encoder::SignalEncoder;
+    /// use dtmf::Signal;
     ///
     /// assert!(SignalEncoder::new(Signal::Hash, 44_100.0).is_some(), "Encoder was none.");
     /// assert!(SignalEncoder::new(Signal::Digit(66), 44_100.0).is_none(), "Invalid encoder");
