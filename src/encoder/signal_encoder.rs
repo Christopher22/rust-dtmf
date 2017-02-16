@@ -29,7 +29,6 @@ impl SignalEncoder {
 impl Iterator for SignalEncoder {
     type Item = [f64; 1];
 
-    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         self.0.next()
     }

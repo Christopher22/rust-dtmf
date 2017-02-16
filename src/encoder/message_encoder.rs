@@ -88,7 +88,6 @@ impl Iterator for MessageEncoder {
 }
 
 impl ExactSizeIterator for MessageEncoder {
-    #[inline]
     fn len(&self) -> usize {
         self.size
     }
