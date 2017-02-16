@@ -37,6 +37,16 @@ impl Message {
         }
     }
 
+    /// Sets the duration of each signal in seconds.
+    pub fn set_signal_duration(&mut self, duration: f64) {
+        self.signal_duration = duration;
+    }
+
+    /// Sets the duration of the silence between the signals in seconds.
+    pub fn set_silence_duration(&mut self, duration: f64) {
+        self.silence_duration = duration;
+    }
+
     /// The duration of each signal in seconds.
     pub fn signal_duration(&self) -> f64 {
         self.signal_duration
