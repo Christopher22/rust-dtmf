@@ -15,9 +15,9 @@ use Signal;
 ///     assert_eq!(decode_signal(data, 48000.), signal);
 /// }
 /// ```
-pub fn decode_signal<T, I>(samples: T, sample_rate: f64) -> Signal
-    where T: IntoIterator<Item = f64, IntoIter = I>,
-          I: Iterator<Item = f64> + ExactSizeIterator
+pub fn decode_signal<T>(samples: T, sample_rate: f64) -> Signal
+    where T: IntoIterator<Item = f64>,
+          T::IntoIter: ExactSizeIterator
 {
     // Separate higher and lower frequencies
     let low_freq: HashSet<u16> = [697, 770, 852, 941].iter().cloned().collect();
@@ -92,19 +92,16 @@ impl GoertzelBin {
     }
 
     /// Adds an sample to the bin.
-    #[inline]
     pub fn add_sample(&mut self, sample: f64) {
         self.coeff = (sample + self.real * self.coeff.0 - self.coeff.1, self.coeff.0);
     }
 
     /// Calculates the current power of the bin
-    #[inline]
     pub fn calculate(&self) -> f64 {
         self.coeff.1.powi(2) + self.coeff.0.powi(2) - self.real * self.coeff.0 * self.coeff.1
     }
 
     /// Returns the frequency of the bin.
-    #[inline]
     pub fn frequency(&self) -> u16 {
         self.freq
     }
