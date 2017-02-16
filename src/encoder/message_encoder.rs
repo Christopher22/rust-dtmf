@@ -81,6 +81,10 @@ impl Iterator for MessageEncoder {
             false => None,
         }
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.size, Some(self.size))
+    }
 }
 
 impl ExactSizeIterator for MessageEncoder {
