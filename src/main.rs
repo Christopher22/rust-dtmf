@@ -5,55 +5,103 @@ extern crate sample;
 #[macro_use]
 extern crate clap;
 
-use clap::{Arg, SubCommand};
+use clap::{Arg, SubCommand, ArgMatches};
 
 use std::path::Path;
 use dtmf::Message;
 
-/// Encodes a message into a file.
-fn encode<P: AsRef<Path>>(file: P, message: Message, sample_rate: u32) -> bool {
-    use dtmf::encoder::MessageEncoder;
-    use hound::{WavWriter, WavSpec};
+/// An helper function which contains the encode subcommand.
+fn encode<'a>(arg_parser: &ArgMatches<'a>, arg_encode_parser: &ArgMatches<'a>) {
 
-    // Create metadata for the wav file
-    let spec = WavSpec {
-        channels: 1,
-        sample_rate: sample_rate,
-        bits_per_sample: 32,
-        sample_format: hound::SampleFormat::Int,
+    /// Encodes a message into a file.
+    fn encode_file<P: AsRef<Path>>(file: P, message: Message, sample_rate: u32) -> bool {
+        use dtmf::encoder::MessageEncoder;
+        use hound::{WavWriter, WavSpec};
+
+        // Create metadata for the wav file
+        let spec = WavSpec {
+            channels: 1,
+            sample_rate: sample_rate,
+            bits_per_sample: 32,
+            sample_format: hound::SampleFormat::Int,
+        };
+
+        // Try to create the file
+        match WavWriter::create(&file, spec) {
+            Ok(mut writer) => {
+                // Write all the samples
+                for sample in MessageEncoder::new(&message, sample_rate as f64)
+                    .map(|s| sample::conv::f64::to_i32(s[0])) {
+                    if writer.write_sample(sample).is_err() {
+                        return false;
+                    }
+                }
+                true
+            }
+            _ => false,
+        }
+    }
+
+    // Read the input from STDIN
+    let mut input = String::new();
+    if let Err(_) = ::std::io::stdin().read_line(&mut input) {
+        println!("[ERROR] Accessing STDIN failed!");
+        return;
+    }
+
+    // Parse the input into a message
+    let mut message = match input.trim().parse::<Message>() {
+        Ok(message) => message,
+        Err(_) => {
+            println!("[ERROR] Invalid message!");
+            return;
+        }
     };
 
-    // Try to create the file
-    match WavWriter::create(&file, spec) {
-        Ok(mut writer) => {
-            // Write all the samples
-            for sample in MessageEncoder::new(&message, sample_rate as f64)
-                .map(|s| sample::conv::f64::to_i32(s[0])) {
-                if writer.write_sample(sample).is_err() {
-                    return false;
-                }
-            }
-            true
-        }
-        _ => false,
+    // Set the parameter
+    message.set_signal_duration(value_t!(arg_parser, "signal", f64).expect("Invalid value"));
+    message.set_silence_duration(value_t!(arg_parser, "silence", f64).expect("Invalid value"));
+
+    // Try to encode the message
+    if !encode_file(Path::new(arg_parser.value_of("file").expect("Valid file")),
+                    message,
+                    value_t!(arg_encode_parser, "sample_rate", u32).expect("Invalid value")) {
+        println!("[ERROR] Writing the file failed. Do you have sufficient rights?")
     }
 }
 
-/// Decodes a message for a file.
-fn decode<P: AsRef<Path>>(file: P, message: &mut Message) -> bool {
-    use hound::WavReader;
+/// An helper function which contains the encode subcommand.
+fn decode<'a>(arg_parser: &ArgMatches<'a>) {
 
-    // Try to open the file
-    match WavReader::open(file) {
-        Ok(reader) => {
-            // TODO, when decoder is ready
-            reader.into_samples::<i32>().map(|s| match s {
-                Ok(sample) => sample::conv::i32::to_f64(sample),
-                Err(_) => 0.,
-            });
-            true
+    /// Decodes a message for a file.
+    fn decode_file<P: AsRef<Path>>(file: P, _: &mut Message) -> bool {
+        use hound::WavReader;
+
+        // Try to open the file
+        match WavReader::open(file) {
+            Ok(reader) => {
+                // TODO, when decoder is ready
+                reader.into_samples::<i32>().map(|s| match s {
+                    Ok(sample) => sample::conv::i32::to_f64(sample),
+                    Err(_) => 0.,
+                });
+                true
+            }
+            Err(_) => false,
         }
-        Err(_) => false,
+    }
+
+    // Create a message with given params.
+    let mut message = Message::new(
+        value_t!(arg_parser, "signal", f64).expect("Invalid value"),
+        value_t!(arg_parser, "silence", f64).expect("Invalid value")
+    );
+
+    // Try to encode the message
+    match !decode_file(Path::new(arg_parser.value_of("file").expect("Valid file")),
+                       &mut message) {
+        true => println!("{}", message),
+        false => println!("[ERROR] Decoding of the file failed. Do it really exist?"),
     }
 }
 
@@ -71,7 +119,7 @@ fn main() {
             .validator(|input| {
                 input.parse::<f64>()
                     .or_else(|_| Err(String::from("Invalid floating point.")))
-                    .and_then(|rate| Ok(()))
+                    .and_then(|_| Ok(()))
             }))
         .arg(Arg::with_name("silence")
             .help("The duration of the silence between the signals in seconds.")
@@ -103,39 +151,11 @@ fn main() {
         .get_matches();
 
     match parser.subcommand() {
-
         // The encode subcommand
-        ("encode", Some(encode_parser)) => {
-            // Read the input from STDIN
-            let mut input = String::new();
-            if let Err(_) = ::std::io::stdin().read_line(&mut input) {
-                println!("[ERROR] Accessing STDIN failed!");
-                return;
-            }
-
-            // Parse the input into a message
-            let mut message = match input.trim().parse::<Message>() {
-                Ok(message) => message,
-                Err(_) => {
-                    println!("[ERROR] Invalid message!");
-                    return;
-                }
-            };
-
-            // Set the parameter
-            message.set_signal_duration(value_t!(parser, "signal", f64).expect("Invalid value"));
-            message.set_silence_duration(value_t!(parser, "silence", f64).expect("Invalid value"));
-
-            // Try to encode the message
-            if !encode(Path::new(parser.value_of("file").expect("Valid file")),
-                       message,
-                       value_t!(encode_parser, "sample_rate", u32).expect("Invalid value")) {
-                println!("[ERROR] Writing the file failed. Do you have sufficient rights?")
-            }
-        }
-        ("decode", Some(decode_parser)) => {}
+        ("encode", Some(encode_parser)) => encode(&parser, &encode_parser),
+        ("decode", Some(_)) => decode(&parser),
         _ => {
             println!("[ERROR] Please specify a subcommand or use 'help' for further assistance!");
         }
-    }
+    };
 }
