@@ -17,6 +17,16 @@ pub struct Message {
 }
 
 impl Message {
+
+    /// Creates a new message with given durations.
+    pub fn new(signal_duration: f64, silence_duration: f64) -> Message {
+        Message {
+            signals: VecDeque::new(),
+            signal_duration: signal_duration,
+            silence_duration: silence_duration
+        }
+    }
+
     /// Creates a message from a slice of signals.
     /// # Example
     /// ```
