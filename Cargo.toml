@@ -11,4 +11,3 @@ doc = false
 clap = "2.20"
 sample = "0.6"
 hound = "3.0"
-goertzel-filter = "0.2.0"
