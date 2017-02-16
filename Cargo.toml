@@ -8,7 +8,7 @@ readme = "README.md"
 description = "An encoder and decoder for DTMF"
 
 [[bin]]
-name = "main"
+name = "dtmf"
 doc = false
 
 [dependencies]
