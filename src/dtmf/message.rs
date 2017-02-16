@@ -10,6 +10,7 @@ pub type SignalIterator<'a> = Iter<'a, Signal>;
 /// A message of `Signal`s in a queue.
 /// # Hint
 /// A `Message` guaranties correctness of its signals.
+#[derive(Clone, PartialEq, Debug)]
 pub struct Message {
     signals: VecDeque<Signal>,
     signal_duration: f64,
