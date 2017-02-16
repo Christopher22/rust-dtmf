@@ -1,6 +1,7 @@
-use std;
+use std::cmp::Ordering;
+use std::collections::HashSet;
 
-use ::Signal;
+use Signal;
 
 /// Decodes a signal from a stream of samples.
 /// # Example
@@ -11,62 +12,120 @@ use ::Signal;
 ///
 /// for &signal in Signal::iter() {
 ///     let data = SignalEncoder::new(signal, 48000.).unwrap().take(12000).map(|x| x[0]).collect::<Vec<f64>>();
-///     assert_eq!(decode_signal(&data, 48000.), signal);
+///     assert_eq!(decode_signal(data, 48000.), signal);
 /// }
 /// ```
-pub fn decode_signal(samples: &Vec<f64>, sample_rate: f64) -> Signal {
-    let low_freq = goertzel_filter(samples, sample_rate, &[697, 770, 852, 941]);
-    let high_freq = goertzel_filter(samples, sample_rate, &[1209, 1336, 1477, 1633]);
+pub fn decode_signal<T, I>(samples: T, sample_rate: f64) -> Signal
+    where T: IntoIterator<Item = f64, IntoIter = I>,
+          I: Iterator<Item = f64> + ExactSizeIterator
+{
+    // Separate higher and lower frequencies
+    let low_freq: HashSet<u16> = [697, 770, 852, 941].iter().cloned().collect();
+    let high_freq: HashSet<u16> = [1209, 1336, 1477, 1633].iter().cloned().collect();
+
+    // Apply the goerzel algorithm to all frequencies
+    let mut bins = GoertzelBin::apply_goerzel(samples.into_iter(),
+                                              sample_rate,
+                                              low_freq.union(&high_freq).cloned());
+
+    // Sorts the bins by their power
+    bins.sort();
+
+    // Find the high frequence with the most power
+    let low_freq = bins.iter()
+        .rev()
+        .map(|bin| bin.frequency())
+        .find(|freq| low_freq.contains(freq))
+        .expect("Missing lower frequency");
+
+    // Find the high frequence with the most power
+    let high_freq = bins.iter()
+        .rev()
+        .map(|bin| bin.frequency())
+        .find(|freq| high_freq.contains(freq))
+        .expect("Missing higher frequency");
 
     Signal::from_frequencies((low_freq, high_freq)).expect("Valid frequencies")
 }
 
-/// Examines frequency which has most power in samples
-fn goertzel_filter(samples: &Vec<f64>, sample_rate: f64, dtmf_freq: &[i32]) -> u16 {
-    let len = samples.len() as i64;
-    let step = sample_rate / (len as f64);
-    let step_normalized = 1.0 / (len as f64);
+/// An bin for the goertzel algorithm which could be sorted by its power.
+struct GoertzelBin {
+    real: f64,
+    coeff: (f64, f64),
+    freq: u16,
+}
 
-    // make bins
-    let mut bins = Vec::new();
-    for i in dtmf_freq.iter() {
-        let freq = (*i as f64) / step;
-        // if freq > (len as f64) - 1f64 {
-        //    return None;
-        // }
-        bins.push(freq.clone());
-    }
+impl GoertzelBin {
+    /// Creates a new bin for a specific frequency.
+    pub fn new(freq: u16, step: f64, len: usize) -> GoertzelBin {
+        let step_normalized = 1.0 / len as f64;
+        let f = (freq as f64 / step) * step_normalized;
 
-    let n_range: Vec<i64> = (0..len).collect();
-    let mut freqs = Vec::new();
-    let mut results = Vec::new();
-
-    for k in bins {
-        // bin frequency and coefficients for computation
-        let f = k * step_normalized;
-        let real = 2.0 * (2.0 * std::f64::consts::PI * f).cos();
-
-        let mut coeff1 = 0.0;
-        let mut coeff2 = 0.0;
-        // doing calculation on all samples
-        for n in &n_range {
-            let y = samples[*n as usize] + real * coeff1 - coeff2;
-            coeff2 = coeff1;
-            coeff1 = y;
-        }
-        // storing results
-        results.push(coeff2.powi(2) + coeff1.powi(2) - real * coeff1 * coeff2);
-        freqs.push(f * sample_rate);
-    }
-
-    // comparing results, find frequency
-    // freqs[results.iter().enumerate().max().0]
-    let mut index = 0;
-    for (j, &value) in results.iter().enumerate() {
-        if value > results[index] {
-            index = j;
+        GoertzelBin {
+            real: 2.0 * (2.0 * ::std::f64::consts::PI * f).cos(),
+            coeff: (0., 0.),
+            freq: freq,
         }
     }
 
-    (freqs[index].round() as u16)
+    /// Applies the Goertzel algorithm on an slice of frequencies and returns the bins.
+    pub fn apply_goerzel<S, F>(samples: S, sample_rate: f64, freqs: F) -> Vec<GoertzelBin>
+        where S: Iterator<Item = f64> + ExactSizeIterator,
+              F: Iterator<Item = u16>
+    {
+
+        let len = samples.len();
+        let step = sample_rate / len as f64;
+
+        // Create the GoertzelBins from the frequencies
+        // TODO: freq > (len as f64) - 1f64?!
+        let mut bins: Vec<_> = freqs.map(|freq| GoertzelBin::new(freq, step, len)).collect();
+
+        // Fill them with the samples
+        for sample in samples {
+            for bin in bins.iter_mut() {
+                bin.add_sample(sample)
+            }
+        }
+
+        bins
+    }
+
+    /// Adds an sample to the bin.
+    #[inline]
+    pub fn add_sample(&mut self, sample: f64) {
+        self.coeff = (sample + self.real * self.coeff.0 - self.coeff.1, self.coeff.0);
+    }
+
+    /// Calculates the current power of the bin
+    #[inline]
+    pub fn calculate(&self) -> f64 {
+        self.coeff.1.powi(2) + self.coeff.0.powi(2) - self.real * self.coeff.0 * self.coeff.1
+    }
+
+    /// Returns the frequency of the bin.
+    #[inline]
+    pub fn frequency(&self) -> u16 {
+        self.freq
+    }
+}
+
+impl Ord for GoertzelBin {
+    fn cmp(&self, other: &GoertzelBin) -> Ordering {
+        self.calculate().partial_cmp(&other.calculate()).expect("Non NaN")
+    }
+}
+
+impl Eq for GoertzelBin {}
+
+impl PartialOrd for GoertzelBin {
+    fn partial_cmp(&self, other: &GoertzelBin) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for GoertzelBin {
+    fn eq(&self, other: &GoertzelBin) -> bool {
+        self.calculate() == other.calculate()
+    }
 }
