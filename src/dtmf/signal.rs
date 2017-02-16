@@ -76,7 +76,7 @@ impl Signal {
             // Other symbols
             (941, 1209) => Some(Signal::Asterisk),
             (941, 1477) => Some(Signal::Hash),
-            _ => None
+            _ => None,
         }
     }
 
