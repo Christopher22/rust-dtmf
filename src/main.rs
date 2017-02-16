@@ -74,17 +74,20 @@ fn encode<'a>(arg_parser: &ArgMatches<'a>, arg_encode_parser: &ArgMatches<'a>) {
 fn decode<'a>(arg_parser: &ArgMatches<'a>) {
 
     /// Decodes a message for a file.
-    fn decode_file<P: AsRef<Path>>(file: P, _: &mut Message) -> bool {
+    fn decode_file<P: AsRef<Path>>(file: P, mut message: &mut Message) -> bool {
         use hound::WavReader;
+        use dtmf::decoder::decode_message;
 
         // Try to open the file
         match WavReader::open(file) {
-            Ok(reader) => {
-                // TODO, when decoder is ready
-                reader.into_samples::<i32>().map(|s| match s {
+            Ok(mut reader) => {
+                let sample_rate = reader.spec().sample_rate as f64;
+                let samples = reader.samples::<i32>().map(|s| match s {
                     Ok(sample) => sample::conv::i32::to_f64(sample),
                     Err(_) => 0.,
                 });
+
+                decode_message(samples, &mut message, sample_rate);
                 true
             }
             Err(_) => false,
@@ -92,14 +95,12 @@ fn decode<'a>(arg_parser: &ArgMatches<'a>) {
     }
 
     // Create a message with given params.
-    let mut message = Message::new(
-        value_t!(arg_parser, "signal", f64).expect("Invalid value"),
-        value_t!(arg_parser, "silence", f64).expect("Invalid value")
-    );
+    let mut message = Message::new(value_t!(arg_parser, "signal", f64).expect("Invalid value"),
+                                   value_t!(arg_parser, "silence", f64).expect("Invalid value"));
 
     // Try to encode the message
-    match !decode_file(Path::new(arg_parser.value_of("file").expect("Valid file")),
-                       &mut message) {
+    match decode_file(Path::new(arg_parser.value_of("file").expect("Valid file")),
+                      &mut message) {
         true => println!("{}", message),
         false => println!("[ERROR] Decoding of the file failed. Do it really exist?"),
     }
@@ -150,6 +151,7 @@ fn main() {
             .about("Decodes an message from a file and print it to STDOUT"))
         .get_matches();
 
+    // Process the subcommands
     match parser.subcommand() {
         // The encode subcommand
         ("encode", Some(encode_parser)) => encode(&parser, &encode_parser),
