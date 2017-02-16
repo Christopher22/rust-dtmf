@@ -1,9 +1,9 @@
-use ::sample::Signal;
-use ::sample::signal::Delay;
+use sample::Signal;
+use sample::signal::Delay;
 
 use std::iter::Take;
 
-use ::Message;
+use Message;
 use super::SignalEncoder;
 
 /// An encoder which encodes a DTMF message.
@@ -18,8 +18,8 @@ impl MessageEncoder {
     /// Creates a new encoder given a message and a sample rate
     /// # Example
     /// ```
-    /// use ::dtmf::{Message, Signal};
-    /// use ::dtmf::encoder::MessageEncoder;
+    /// use dtmf::{Message, Signal};
+    /// use dtmf::encoder::MessageEncoder;
     ///
     /// let mut message = Message::default();
     /// message.enqueue(Signal::A);
@@ -88,7 +88,6 @@ impl Iterator for MessageEncoder {
 }
 
 impl ExactSizeIterator for MessageEncoder {
-    #[inline]
     fn len(&self) -> usize {
         self.size
     }

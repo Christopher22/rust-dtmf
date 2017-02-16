@@ -18,20 +18,19 @@ pub struct Message {
 }
 
 impl Message {
-
     /// Creates a new message with given durations.
     pub fn new(signal_duration: f64, silence_duration: f64) -> Message {
         Message {
             signals: VecDeque::new(),
             signal_duration: signal_duration,
-            silence_duration: silence_duration
+            silence_duration: silence_duration,
         }
     }
 
     /// Creates a message from a slice of signals.
     /// # Example
     /// ```
-    /// use ::dtmf::{Message, Signal};
+    /// use dtmf::{Message, Signal};
     ///
     /// assert!(Message::from_slice(&[Signal::A, Signal::B]).is_some());
     /// assert!(Message::from_slice(&[Signal::Digit(42)]).is_none());
@@ -71,7 +70,7 @@ impl Message {
     /// Adds a signal to the queue, iff it is valid.
     /// # Example
     /// ```
-    /// use ::dtmf::{Message, Signal};
+    /// use dtmf::{Message, Signal};
     ///
     /// let mut message = Message::default();
     /// assert!(message.enqueue(Signal::A));
@@ -90,7 +89,7 @@ impl Message {
     /// Returns the first signal from the queue.
     /// # Example
     /// ```
-    /// use ::dtmf::{Message, Signal};
+    /// use dtmf::{Message, Signal};
     ///
     /// let mut message = Message::default();
     /// message.enqueue(Signal::A);
@@ -106,7 +105,7 @@ impl Message {
     /// Returns the number of signals in the queue.
     /// # Example
     /// ```
-    /// use ::dtmf::{Message, Signal};
+    /// use dtmf::{Message, Signal};
     ///
     /// let mut message = Message::default();
     /// message.enqueue(Signal::A);

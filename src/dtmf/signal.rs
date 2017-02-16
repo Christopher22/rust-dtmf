@@ -25,7 +25,7 @@ impl Signal {
     /// Generates a signal from a char.
     /// # Example
     /// ```
-    /// use ::dtmf::{Signal, SignalParsingError};
+    /// use dtmf::{Signal, SignalParsingError};
     ///
     /// assert_eq!(Signal::from_char('A'), Ok(Signal::A));
     /// assert_eq!(Signal::from_char('7'), Ok(Signal::Digit(7)));
@@ -49,7 +49,7 @@ impl Signal {
     /// Generates a signal from a lower and an upper frequency.
     /// # Example
     /// ```
-    /// use ::dtmf::Signal;
+    /// use dtmf::Signal;
     ///
     /// for &signal in Signal::iter() {
     ///     let frequencies = signal.frequencies().expect("Valid signals");
@@ -76,14 +76,14 @@ impl Signal {
             // Other symbols
             (941, 1209) => Some(Signal::Asterisk),
             (941, 1477) => Some(Signal::Hash),
-            _ => None
+            _ => None,
         }
     }
 
     /// Returns the lower and the upper frequency of the signal according to the standardization.
     /// # Example
     /// ```
-    /// use ::dtmf::Signal;
+    /// use dtmf::Signal;
     ///
     /// let signal = Signal::A;
     /// let (low, high) = signal.frequencies().expect("Valid signal");
