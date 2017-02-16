@@ -83,6 +83,21 @@ impl Message {
         self.signals.pop_front()
     }
 
+    /// Returns the number of signals in the queue.
+    /// # Example
+    /// ```
+    /// use ::dtmf::{Message, Signal};
+    ///
+    /// let mut message = Message::default();
+    /// message.enqueue(Signal::A);
+    /// message.enqueue(Signal::B);
+    ///
+    /// assert_eq!(message.len(), 2);
+    /// ```
+    pub fn len(&self) -> usize {
+        self.signals.len()
+    }
+
     /// Returns an inmutable iterator over the signals.
     pub fn iter(&self) -> SignalIterator {
         self.signals.iter()
