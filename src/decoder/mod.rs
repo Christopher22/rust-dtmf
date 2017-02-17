@@ -1,3 +1,5 @@
+//! Decoder for signals and messages.
+
 mod signal_decoder;
 mod message_decoder;
 
