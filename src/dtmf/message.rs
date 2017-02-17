@@ -5,6 +5,7 @@ use std::fmt::{Display, Formatter, Result as FormatResult};
 
 use super::{Signal, SignalParsingError};
 
+/// An iterator over the signals in a message.
 pub type SignalIterator<'a> = Iter<'a, Signal>;
 
 /// A message of `Signal`s in a queue.
